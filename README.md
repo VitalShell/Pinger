@@ -1,5 +1,6 @@
 # Pinger
 Pinger - simple network monitoring tool. Allows to ping host by ICMP or TCP.
+Prints info about network issues to STDOUT.
 A trivial app to learn features of the Net::Ping module.
 
 ## Usage
@@ -16,3 +17,6 @@ A trivial app to learn features of the Net::Ping module.
 
 ## Deployment
 The Pinger uses core Perl modules and doesn't require any extra modules to install.
+
+## Feature
+The 'root' privileges are required to use the 'icmp' protocol (it's feature of the Net::Ping).

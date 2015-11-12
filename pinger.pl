@@ -37,7 +37,6 @@ our $opt_v   = 0;       # verbose
 our $opt_b   = undef;   # barrier
 our $opt_h   = undef;   # hostname
 
-
 #
 $Getopt::Std::STANDARD_HELP_VERSION = 1;        #
 $| = 1;                                         # Disable buffered output
