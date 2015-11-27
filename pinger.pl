@@ -24,13 +24,13 @@ use warnings;
 
 #
 # Global variables
-our $VERSION = '0.1';   # current version
+our $VERSION = '0.2';   # current version
 our $break   = 0;       # break indicator
 
 #
 # Set default values for command line arguments
 our $opt_t   = 1;       # timeout
-our $opt_p   = 'icmp';  # protocol
+our $opt_p   = undef;   # protocol
 our $opt_s   = 64;      # packets size
 our $opt_i   = 1;       # interval
 our $opt_v   = 0;       # verbose
@@ -84,26 +84,75 @@ if (not $opt_h) {
     exit(0);
 }
 
+#
+# Cheking effective rights and available modes
+#
+if ($>) {
+    # if effective UID is not equal 0 (not a root)
+    if (!defined($opt_p)) {
+        printf("No root privileges, using 'tcp' mode.\n");
+        $opt_p = 'tcp';
+    } elsif ($opt_p eq 'icmp') {
+        printf("No root priveleges to use 'icmp'. Try to use 'tcp' mode.\n");
+        exit(1);
+    }
+} else {
+    $opt_p = 'icmp' if (!defined($opt_p));
+}
+
+#
+# Begin
+#
+output('Start');
 my $ping = Net::Ping->new($opt_p, $opt_t, $opt_s);
 $ping->hires(1);
+my $last_state = 1;             # Last state of communication
+my $last_time  = time();        # Last time changing of state
 
+#
+# Working until interrupt
+#
 while (!$break) {
     my ($success, $time, $host) = $ping->ping($opt_h);
     $time = $time * 1000;
     if (defined($success)) {
         if ($success) {
-            if ($opt_v or not $opt_b) {
+            if ($opt_v) {
                 output("%s: got a reply within %.3f ms.", $opt_h, $time);
             } elsif ($opt_b and $time > $opt_b) {
                 output("%s: too slow connection (%.3f ms.)", $opt_h, $time);
             }
+            if (!$last_state) {
+                my $interval = time() - $last_time;
+                my $days     = int($interval / 86400);
+                my $hours    = int(($interval - $days * 86400) / 3600);
+                my $minutes  = int(($interval - $days * 86400 - $hours * 3600) / 60);
+                my $seconds  = $interval - $days * 86400 - $hours * 3600 - $minutes * 60;
+                output("Communication recovered after $interval seconds ("
+                    . ($days ? "$days days " : "")
+                    . ($hours ? "$hours hours " : "")
+                    . ($minutes ? "$minutes minutes " : "")
+                    . ($seconds ? "$seconds seconds" : "")
+                    . ")"
+                );
+                $last_state = 1;
+                $last_time  = time();
+            }
         } else {
-            output("%s: no response within %d sec.", $opt_h, $opt_t);
+            if ($opt_v) {
+                output("%s: no response within %d sec.", $opt_h, $opt_t);
+            }
+            if ($last_state) {
+                output("Communication lost.");
+                $last_state = 0;
+                $last_time  = time();
+            }
         }
         sleep($opt_i) if (!$break);
     }
 }
 
 $ping->close();
+output('Stop');
 
 # end of file
