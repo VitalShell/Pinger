@@ -77,7 +77,7 @@ sub output {
 }
 
 
-getopts('h:t:p:s:i:b:v:');
+getopts('h:t:p:s:i:b:v');
 if (not $opt_h) {
     VERSION_MESSAGE();
     HELP_MESSAGE();
