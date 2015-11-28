@@ -77,7 +77,7 @@ sub output {
 }
 
 
-getopts('h:t:p:s:b:v');
+getopts('h:t:p:s:i:b:v:');
 if (not $opt_h) {
     VERSION_MESSAGE();
     HELP_MESSAGE();
@@ -131,8 +131,8 @@ while (!$break) {
                 output("Communication recovered after $interval seconds ("
                     . ($days ? "$days days " : "")
                     . ($hours ? "$hours hours " : "")
-                    . ($minutes ? "$minutes minutes " : "")
-                    . ($seconds ? "$seconds seconds" : "")
+                    . ($minutes ? "$minutes min. " : "")
+                    . ($seconds ? "$seconds sec." : "")
                     . ")"
                 );
                 $last_state = 1;
