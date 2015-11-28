@@ -24,7 +24,7 @@ use warnings;
 
 #
 # Global variables
-our $VERSION = '0.2';   # current version
+our $VERSION = '0.3';   # current version
 our $break   = 0;       # break indicator
 
 #
@@ -36,6 +36,7 @@ our $opt_i   = 1;       # interval
 our $opt_v   = 0;       # verbose
 our $opt_b   = undef;   # barrier
 our $opt_h   = undef;   # hostname
+our $opt_r   = 1;       # threshold
 
 #
 $Getopt::Std::STANDARD_HELP_VERSION = 1;        #
@@ -50,6 +51,7 @@ sub HELP_MESSAGE () {
     print("  -s SIZE      - size of packets (bytes)\n");
     print("  -i INTERVAL  - interval to ping (seconds)\n");
     print("  -b BARRIER   - alert barrier for delay (milliseconds)\n");
+    print("  -r THRESHOLD - loss threshold\n");
     print("  -v           - verbose mode\n");
     print("\n");
 }
@@ -77,7 +79,7 @@ sub output {
 }
 
 
-getopts('h:t:p:s:i:b:v');
+getopts('h:t:p:s:i:b:r:v');
 if (not $opt_h) {
     VERSION_MESSAGE();
     HELP_MESSAGE();
@@ -108,6 +110,7 @@ my $ping = Net::Ping->new($opt_p, $opt_t, $opt_s);
 $ping->hires(1);
 my $last_state = 1;             # Last state of communication
 my $last_time  = time();        # Last time changing of state
+my $loss_count = 0;
 
 #
 # Working until interrupt
@@ -117,6 +120,7 @@ while (!$break) {
     $time = $time * 1000;
     if (defined($success)) {
         if ($success) {
+            $loss_count = 0;
             if ($opt_v) {
                 output("%s: got a reply within %.3f ms.", $opt_h, $time);
             } elsif ($opt_b and $time > $opt_b) {
@@ -139,10 +143,11 @@ while (!$break) {
                 $last_time  = time();
             }
         } else {
+            $loss_count++;
             if ($opt_v) {
                 output("%s: no response within %d sec.", $opt_h, $opt_t);
             }
-            if ($last_state) {
+            if ($last_state && $loss_count >= $opt_r) {
                 output("Communication lost.");
                 $last_state = 0;
                 $last_time  = time();
