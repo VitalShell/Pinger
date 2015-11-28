@@ -12,6 +12,7 @@ A trivial app to learn features of the Net::Ping module.
   -s SIZE      - size of packets (bytes)
   -i INTERVAL  - interval to ping (seconds)
   -b BARRIER   - alert barrier for delay (milliseconds)
+  -r THRESHOLD - loss threshold
   -v           - verbose mode
 ```
 
