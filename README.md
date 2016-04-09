@@ -71,7 +71,7 @@ The verbose mode allows you to add more detailed information to the output.
 ```
 
 ### Standard log with the increased timeout
-You can use `-t` option to increase time for waiting a reply.
+You can use the `-t` option to increase time for waiting a reply.
 ```
 # ./pinger.pl -h somehost.com -t 10
 ```
@@ -117,7 +117,7 @@ You can use `-t` option to increase time for waiting a reply.
 ```
 
 ### Verbose log with the loss threshold specified
-You can use `-r` option to specify the number of lost packets before generate 'Communication lost' message.
+You can use the `-r` option to specify the number of lost packets before generate 'Communication lost' message.
 ```
 # ./pinger.pl -h somehost.com -v -t 3 -r 10
 ```
@@ -154,7 +154,7 @@ You can use `-r` option to specify the number of lost packets before generate 'C
 ```
 
 ### Verbose log with the critical delay specified
-You can use `-d` option to specify the critical delay for replies.
+You can use the `-d` option to specify the critical delay for replies.
 ```
 # ./pinger.pl -h somewhere.com -v -d 90
 ```
