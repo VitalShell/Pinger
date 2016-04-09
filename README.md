@@ -14,6 +14,7 @@ A trivial app to learn features of the Net::Ping module.
   -d DELAY     - critical delay, adds alert about reply time longer than specified (milliseconds, no alerts by default)
   -r THRESHOLD - losses threshold, alert only after specified count of lost packets (1 by default)
   -v           - verbose mode, generates more detailed log
+```
 
 ## Deployment
 The Pinger uses core Perl modules and doesn't require any extra modules to install.
@@ -35,8 +36,8 @@ The 'root' privileges are required to use the 'icmp' protocol (it's a feature of
 2016-04-05 21:24:29 Communication lost.
 2016-04-05 21:24:32 Communication recovered after 3 seconds (3 sec.)
 2016-04-05 21:24:36 Stop
-
 ```
+
 ### Verbose log
 The verbose mode allows you to add more detailed information to the output.
 ```
