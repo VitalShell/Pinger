@@ -24,7 +24,7 @@ use warnings;
 
 #
 # Global variables
-our $VERSION = '0.3';   # current version
+our $VERSION = '0.4';   # current version
 our $break   = 0;       # break indicator
 
 #
@@ -34,7 +34,7 @@ our $opt_p   = undef;   # protocol
 our $opt_s   = 64;      # packets size
 our $opt_i   = 1;       # interval
 our $opt_v   = 0;       # verbose
-our $opt_b   = undef;   # barrier
+our $opt_d   = undef;   # barrier
 our $opt_h   = undef;   # hostname
 our $opt_r   = 1;       # threshold
 
@@ -44,22 +44,22 @@ $| = 1;                                         # Disable buffered output
 
 
 sub HELP_MESSAGE () {
-    print("Usage: $0 -h HOST [-t TIMEOUT] [-p icmp|tcp] [-s SIZE] [-i INTERVAL] [-b BARRIER] [-v]\n");
+    print("./pinger.pl -h HOST [-t TIMEOUT] [-p icmp|tcp] [-s SIZE] [-i INTERVAL] [-d DELAY] [-r THRESHOLD] [-v]\n");
     print("  -h HOST      - host to check (IP address or hostname)\n");
-    print("  -t TIMEOUT   - timeout (seconds)\n");
-    print("  -p icmp|tcp  - protocol (icmp or tcp)\n");
-    print("  -s SIZE      - size of packets (bytes)\n");
-    print("  -i INTERVAL  - interval to ping (seconds)\n");
-    print("  -b BARRIER   - alert barrier for delay (milliseconds)\n");
-    print("  -r THRESHOLD - loss threshold\n");
-    print("  -v           - verbose mode\n");
+    print("  -t TIMEOUT   - timeout for waiting an answer (seconds, 1 second by default)\n");
+    print("  -p icmp|tcp  - protocol (icmp or tcp, icmp by default if you are root)\n");
+    print("  -s SIZE      - size of packets (bytes, 64 by default)\n");
+    print("  -i INTERVAL  - interval after getting a reply before sending the next request (seconds, 1 second by default)\n");
+    print("  -d DELAY     - critical delay, adds alert about reply time longer than specified (milliseconds, no alerts by default)\n");
+    print("  -r THRESHOLD - losses threshold, alert only after specified count of lost packets (1 by default)\n");
+    print("  -v           - verbose mode, generates more detailed log\n");
     print("\n");
 }
 
 
 sub VERSION_MESSAGE () {
     print("Pinger v.$VERSION. Simple network monitoring tool.\n");
-    print("Copyright (C) 2015 Vitaly Druzhinin.\n\n");
+    print("Copyright (C) 2015,2016 Vitaly Druzhinin.\n\n");
 }
 
 
@@ -79,7 +79,7 @@ sub output {
 }
 
 
-getopts('h:t:p:s:i:b:r:v');
+getopts('h:t:p:s:i:d:r:v');
 if (not $opt_h) {
     VERSION_MESSAGE();
     HELP_MESSAGE();
@@ -123,7 +123,8 @@ while (!$break) {
             $loss_count = 0;
             if ($opt_v) {
                 output("%s: got a reply within %.3f ms.", $opt_h, $time);
-            } elsif ($opt_b and $time > $opt_b) {
+            }
+            if ($opt_d and $time > $opt_d) {
                 output("%s: too slow connection (%.3f ms.)", $opt_h, $time);
             }
             if (!$last_state) {
